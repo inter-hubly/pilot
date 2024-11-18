@@ -28,6 +28,7 @@ func WithUsernameAndPassword(username, password string) Option {
 
 func NewConn(opts ...Option) {
 	onceElastic.Do(func() {
+		elasticConn = &connection{}
 
 		elasticConn.url = []string{elasticDefault}
 		for _, opt := range opts {

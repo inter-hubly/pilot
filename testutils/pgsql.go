@@ -12,18 +12,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-type PgsqlTestContainer struct {
-	ctx  context.Context
-	host string
-}
-
-func NewPgsqlTestContainer() *PgsqlTestContainer {
-	return &PgsqlTestContainer{
-		ctx: context.Background(),
-	}
-}
-func (p *PgsqlTestContainer) Pgsql() error {
-
+func Pgsql(ctx context.Context) (string, func(context.Context) error, error) {
 	req := testcontainers.ContainerRequest{
 		Image:        "postgres:latest",
 		ExposedPorts: []string{"5432/tcp"},
@@ -35,34 +24,33 @@ func (p *PgsqlTestContainer) Pgsql() error {
 		WaitingFor: wait.ForListeningPort("5432/tcp"),
 	}
 
-	pgsqlC, err := testcontainers.GenericContainer(p.ctx, testcontainers.GenericContainerRequest{
+	pgsqlC, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
 	})
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not start container: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not start container: %s", err))
 	}
-	host, err := pgsqlC.Host(p.ctx)
+	host, err := pgsqlC.Host(ctx)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not get container host: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not get container host: %s", err))
 	}
 
-	port, err := pgsqlC.MappedPort(p.ctx, "5432")
+	port, err := pgsqlC.MappedPort(ctx, "5432")
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not get container port: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not get container port: %s", err))
 	}
-	p.host = fmt.Sprintf("postgres://test:test@%s:%s/testdb?sslmode=disable", host, port.Port())
-	return nil
+	return fmt.Sprintf("postgres://test:test@%s:%s/testdb?sslmode=disable", host, port.Port()), pgsqlC.Terminate, nil
 }
 
-func (p *PgsqlTestContainer) CreateScripts(sqlFile string) {
+func CreateScripts(host, sqlFile string) {
 	fileContent, err := os.ReadFile(sqlFile)
 	if err != nil {
 		log.Fatalf("failed to read file %s: %v", sqlFile, err)
 	}
 
-	db, err := sql.Open("postgres", p.host)
+	db, err := sql.Open("postgres", host)
 	if err != nil {
 		log.Fatal("failed to connect to db:", err)
 	}
@@ -71,8 +59,4 @@ func (p *PgsqlTestContainer) CreateScripts(sqlFile string) {
 	if err != nil {
 		log.Fatalf("failed to execute query %s: %v", sqlFile, err)
 	}
-}
-
-func (p *PgsqlTestContainer) GetHost() string {
-	return p.host
 }

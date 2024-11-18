@@ -27,11 +27,12 @@ type config struct {
 }
 
 type environment struct {
-	Config config     `yaml:"config"`
-	Mongo  dbConfig   `yaml:"mongo"`
-	Pgsql  dbConfig   `yaml:"pgsql"`
-	Redis  dbConfig   `yaml:"redis"`
-	Ampq   ampqConfig `yaml:"ampq"`
+	Config        config     `yaml:"config"`
+	Mongo         dbConfig   `yaml:"mongo"`
+	Pgsql         dbConfig   `yaml:"pgsql"`
+	Redis         dbConfig   `yaml:"redis"`
+	ElasticSearch dbConfig   `yaml:"elasticSearch"`
+	Ampq          ampqConfig `yaml:"ampq"`
 }
 
 var env environment
@@ -68,11 +69,12 @@ func GetMongoConfig() dbConfig {
 func GetPgsqlConfig() dbConfig {
 	return env.Pgsql
 }
-
 func GetRedisConfig() dbConfig {
 	return env.Redis
 }
-
+func GetElasticSearch() dbConfig {
+	return env.ElasticSearch
+}
 func GetAmpqConfig() ampqConfig {
 	return env.Ampq
 }

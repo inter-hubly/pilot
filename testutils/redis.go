@@ -9,18 +9,7 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
-type RedisTestContainer struct {
-	ctx  context.Context
-	host string
-}
-
-func NewRedisTestContainer() *RedisTestContainer {
-	return &RedisTestContainer{
-		ctx: context.Background(),
-	}
-}
-
-func (r *RedisTestContainer) Start() error {
+func Redis(ctx context.Context) (string, func(context.Context) error, error) {
 
 	req := testcontainers.ContainerRequest{
 		Image:        "redis:alpine",
@@ -28,27 +17,22 @@ func (r *RedisTestContainer) Start() error {
 		WaitingFor:   wait.ForListeningPort("6379/tcp"),
 	}
 
-	redisContainer, err := testcontainers.GenericContainer(r.ctx, testcontainers.GenericContainerRequest{
+	redisContainer, err := testcontainers.GenericContainer(ctx, testcontainers.GenericContainerRequest{
 		ContainerRequest: req,
 		Started:          true,
 	})
 
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not start container: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not start container: %s", err))
 	}
-	host, err := redisContainer.Host(r.ctx)
+	host, err := redisContainer.Host(ctx)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not get container host: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not get container host: %s", err))
 	}
 
-	port, err := redisContainer.MappedPort(r.ctx, "6379")
+	port, err := redisContainer.MappedPort(ctx, "6379")
 	if err != nil {
-		return errors.New(fmt.Sprintf("Could not get container port: %s", err))
+		return "", nil, errors.New(fmt.Sprintf("Could not get container port: %s", err))
 	}
-	r.host = fmt.Sprintf("%s:%s", host, port.Port())
-	return nil
-}
-
-func (r *RedisTestContainer) GetHost() string {
-	return r.host
+	return fmt.Sprintf("%s:%s", host, port.Port()), redisContainer.Terminate, nil
 }

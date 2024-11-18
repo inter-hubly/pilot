@@ -29,7 +29,7 @@ type connection struct {
 
 func NewConnection(opts ...Option) {
 	oncePgsql.Do(func() {
-
+		pgConn = &connection{}
 		pgConn.url = pgsqlDefaultUrl
 		for _, opt := range opts {
 			opt(pgConn)

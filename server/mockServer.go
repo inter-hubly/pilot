@@ -1,5 +1,13 @@
 package server
 
+import (
+	"fmt"
+	"os"
+
+	"github.com/inter-hubly/pilot/hlog"
+	"gopkg.in/yaml.v3"
+)
+
 type MockEnvironment struct {
 	PgsqlHost       string
 	PgsqlDatabase   string
@@ -8,6 +16,8 @@ type MockEnvironment struct {
 	RedisHost       string
 	RedisDatabase   string
 	RedisEntryPoint string
+
+	ElasticSearchHost string
 }
 
 func NewMockEnvironment(mock MockEnvironment) {
@@ -22,4 +32,21 @@ func NewMockEnvironment(mock MockEnvironment) {
 		Database:   mock.RedisDatabase,
 		EntryPoint: mock.RedisEntryPoint,
 	}
+}
+
+func MockStartEnv(baseRoot string) {
+	f, err := os.Open(fmt.Sprintf("%sconfig.test.yaml", baseRoot))
+	if err != nil {
+		hlog.Warn("MockStartEnv", "Failed to open config file", "err", err)
+		// want to stop app, because don't have any environment
+		panic(err)
+	}
+	defer f.Close()
+
+	decoder := yaml.NewDecoder(f)
+	if err = decoder.Decode(&env); err != nil {
+		hlog.Warn("MockStartEnv", "Failed to parse config file", "err", err)
+		panic(err)
+	}
+	hlog.Info("MockStartEnv", fmt.Sprintf("Loading environment variables in %s environment in port %d", env.Config.Env, env.Config.Port))
 }

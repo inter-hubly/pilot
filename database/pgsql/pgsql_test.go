@@ -1,6 +1,7 @@
 package pgsql
 
 import (
+	"context"
 	"testing"
 
 	"github.com/inter-hubly/pilot/testutils"
@@ -9,11 +10,16 @@ import (
 
 func TestPgsql(t *testing.T) {
 	var err error
-	container := testutils.NewPgsqlTestContainer()
-	if err = container.Pgsql(); err != nil {
+	ctx := context.Background()
+	host, close, err := testutils.Pgsql(ctx)
+	if err != nil {
 		t.Fatal(err)
 	}
-	NewConnection(WithUrl(container.GetHost()))
+	if close != nil {
+		defer close(ctx)
+	}
+
+	NewConnection(WithUrl(host))
 
 	conn := GetConnection()
 	t.Run("need insert test", func(t *testing.T) {
@@ -25,7 +31,7 @@ func TestPgsql(t *testing.T) {
 	`)
 		assert.NoError(t, err)
 
-		v, err := conn.pgsql.Exec("INSERT INTO test (name) VALUES ($1)", "test")
+		v, err := conn.Exec("INSERT INTO test (name) VALUES ($1)", "test")
 		assert.NoError(t, err)
 
 		assert.NoError(t, insertError)
@@ -33,8 +39,10 @@ func TestPgsql(t *testing.T) {
 		assert.NotNil(t, v)
 
 		var name string
-		err = conn.pgsql.QueryRow("SELECT name FROM test WHERE name = $1", "test").Scan(&name)
-		assert.NoError(t, err)
+		row, err2 := conn.Query("SELECT name FROM test WHERE name = $1", "test")
+		assert.NoError(t, err2)
+		insertError = row.Scan(&name)
+		assert.NoError(t, insertError)
 		assert.Equal(t, "test", name)
 
 	})
