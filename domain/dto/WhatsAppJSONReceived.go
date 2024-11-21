@@ -8,11 +8,21 @@ const (
 	MessageTypeMessage  MessageType = "message"
 )
 
+type MessageStatus string
+
+const (
+	SendStatus    MessageStatus = "send"
+	ReceiveStatus MessageStatus = "receive"
+	ReadStatus    MessageStatus = "read"
+	OptionStatus  MessageStatus = "options"
+)
+
 type WhatsAppJSONReceived struct {
-	ID          string             `json:"id,omitempty"`
+	Id          string             `json:"id,omitempty"`
 	MessageType MessageType        `json:"messageType"`
 	Owner       WhatsAppPhoneIdDto `json:"sender,omitempty"`
 	SenderPhone string             `json:"receive,omitempty"`
+	Status      MessageStatus      `json:"status,omitempty"`
 	Metadata    interface{}        `json:"metadata,omitempty"`
 }
 
@@ -21,21 +31,11 @@ type WhatsAppPhoneIdDto struct {
 	DisplayPhoneNumber string `json:"displayPhoneNumber,omitempty"`
 }
 
-// type WhatsAppMetadataDto struct {
-// 	MessageID   string `json:"messageId,omitempty"`
-// 	RecipientID string `json:"recipientId,omitempty"`
-// 	Status      string `json:"status,omitempty"`
-// 	Body        string `json:"body,omitempty"`
-// 	Timestamp   int64  `json:"timestamp,omitempty"`
-// 	BodyLength  int64  `json:"bodyLength,omitempty"`
-// }
-
 type WhatsAppStatusesDto struct {
 	Timestamp      string `json:"timestamp,omitempty"`
 	ConversationId string `json:"conversationId,omitempty"`
 	OriginType     string `json:"originType,omitempty"`
 	MessageId      string `json:"messageId,omitempty"`
-	Status         string `json:"status,omitempty"`
 	Body           string `json:"body,omitempty"`
 	BodyLength     int    `json:"bodyLength,omitempty"`
 }

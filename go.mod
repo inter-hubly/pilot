@@ -4,6 +4,7 @@ go 1.23.1
 
 require (
 	github.com/elastic/go-elasticsearch/v8 v8.16.0
+	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.6.0
 	github.com/lib/pq v1.10.9
 	github.com/pkg/errors v0.9.1
