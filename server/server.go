@@ -21,9 +21,10 @@ type Server struct {
 }
 
 type config struct {
-	Env      Environment `yaml:"env"`
-	Port     int         `yaml:"port"`
-	HostName string      `yaml:"hostname"`
+	Env         Environment `yaml:"env"`
+	Port        int         `yaml:"port"`
+	HostName    string      `yaml:"hostname"`
+	Secrettoken string      `yaml:"secrettoken"`
 }
 
 type environment struct {

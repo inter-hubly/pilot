@@ -31,6 +31,7 @@ func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (
 
 	res, err := req.Do(ctx, c.elastic)
 	if err != nil {
+		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
 		return nil, err
 	}
 	defer res.Body.Close()

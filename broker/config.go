@@ -83,11 +83,11 @@ func (r *rabbitMQ) declareExchange(exchangeName, exchangeType string) error {
 		nil,
 	)
 	if err != nil {
-		return fmt.Errorf("failed to declare exchange: %w", err)
+		hlog.Error("rabbitMQ.declareExchange", fmt.Sprintf("failed to declare exchange: %s", err))
 	}
 
 	r.exchange = exchangeName
-	log.Printf("Exchange declared: %s", exchangeName)
+	hlog.Info("rabbitMQ.declareExchange", fmt.Sprintf("exchange %s declared successfully", exchangeName))
 	return nil
 }
 
