@@ -17,12 +17,12 @@ const (
 )
 
 type WhatsAppJSONReceived struct {
-	Id          string             `json:"id,omitempty"`
-	MessageType MessageType        `json:"messageType"`
-	Owner       WhatsAppPhoneIdDto `json:"sender,omitempty"`
-	SenderPhone string             `json:"receive,omitempty"`
-	Status      MessageStatus      `json:"status,omitempty"`
-	Metadata    interface{}        `json:"metadata,omitempty"`
+	Id          string              `json:"id,omitempty"`
+	MessageType MessageType         `json:"messageType"`
+	Owner       WhatsAppPhoneIdDto  `json:"owner,omitempty"`
+	SenderPhone string              `json:"senderPhone,omitempty"`
+	Status      MessageStatus       `json:"status,omitempty"`
+	Metadata    WhatsAppStatusesDto `json:"metadata,omitempty"`
 }
 
 type WhatsAppPhoneIdDto struct {
