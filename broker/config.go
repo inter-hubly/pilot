@@ -121,7 +121,7 @@ func (r *rabbitMQ) Publish(routingKey string, body []byte) error {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
 
-	log.Printf("Message published to exchange %s with routing key %s", r.exchange, routingKey)
+	hlog.Info("rabbitMQ.Publish", "Message published to exchange %s with routing key %s", r.exchange, routingKey)
 	return nil
 }
 
@@ -158,11 +158,12 @@ func (r *rabbitMQ) Close() {
 	if r.conn != nil {
 		_ = r.conn.Close()
 	}
-	log.Println("RabbitMQ connection closed")
+	hlog.Info("rabbitMQ.Close", "RabbitMQ connection closed")
 }
 
 func (r *rabbitMQ) QueueBind(queuesBind ...*queueBinding) error {
 	for _, queue := range queuesBind {
+		r.queueDeclare(queue.QueueName)
 		if err := r.channel.QueueBind(
 			queue.QueueName,
 			queue.RoutingKey,

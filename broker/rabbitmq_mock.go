@@ -2,7 +2,7 @@
 // Source: rabbitmq.go
 
 // Package mocks is a generated GoMock package.
-package mocks
+package broker
 
 import (
 	reflect "reflect"
@@ -70,4 +70,22 @@ func (m *MockConnection) Publish(routingKey string, body []byte) error {
 func (mr *MockConnectionMockRecorder) Publish(routingKey, body interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockConnection)(nil).Publish), routingKey, body)
+}
+
+// QueueBind mocks base method.
+func (m *MockConnection) QueueBind(queuesBind ...*queueBinding) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range queuesBind {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "QueueBind", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// QueueBind indicates an expected call of QueueBind.
+func (mr *MockConnectionMockRecorder) QueueBind(queuesBind ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueueBind", reflect.TypeOf((*MockConnection)(nil).QueueBind), queuesBind...)
 }

@@ -15,7 +15,7 @@ var (
 type Connection interface {
 	Publish(routingKey string, body []byte) error
 	Consume(queue string, consumeFunc func(value amqp.Delivery))
-	QueueBind(queue, routingKey, exchange string) error
+	QueueBind(queuesBind ...*queueBinding) error
 	Close()
 }
 
