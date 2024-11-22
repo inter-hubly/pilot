@@ -4,17 +4,16 @@ type MessageType string
 
 const (
 	MessageTypeStatuses MessageType = "statuses"
-	MessageTypeContacts MessageType = "contacts"
 	MessageTypeMessage  MessageType = "message"
 )
 
 type MessageStatus string
 
 const (
-	SendStatus    MessageStatus = "send"
-	ReceiveStatus MessageStatus = "receive"
-	ReadStatus    MessageStatus = "read"
-	OptionStatus  MessageStatus = "options"
+	SentStatus      MessageStatus = "sent"
+	DeliveredStatus MessageStatus = "delivered"
+	ReadStatus      MessageStatus = "read"
+	ReceivedStatus  MessageStatus = "received"
 )
 
 type WhatsAppJSONReceived struct {

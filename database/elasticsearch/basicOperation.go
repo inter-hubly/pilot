@@ -41,7 +41,7 @@ func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (
 		if err != nil {
 			hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
 		}
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", all))
+		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", string(all)))
 		return nil, errors.New("error when create document")
 	}
 	var resBody Response

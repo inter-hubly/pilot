@@ -18,6 +18,20 @@ func WithURL(url string) Option {
 	}
 }
 
+type queueBinding struct {
+	QueueName  string
+	RoutingKey string
+	Exchange   string
+}
+
+func NewQueueBinding(queueName, routingKey, exchangeName string) *queueBinding {
+	return &queueBinding{
+		QueueName:  queueName,
+		RoutingKey: routingKey,
+		Exchange:   exchangeName,
+	}
+}
+
 // RabbitMQ represents the RabbitMQ connection and channel.
 type rabbitMQ struct {
 	url      string
@@ -125,12 +139,15 @@ func (r *rabbitMQ) Consume(queue string, consumeFunc func(amqp.Delivery)) {
 	if err != nil {
 		hlog.Error("rabbitMQ.Consume", "failed to consume message: ", err)
 	}
+	forever := make(chan bool)
+
 	go func() {
 		for d := range msgs {
 			hlog.Info("rabbitMQ.Consume", fmt.Sprintf("Fila %s: Recebida uma mensagem: %s", queue, d.Body))
 			consumeFunc(d)
 		}
 	}()
+	<-forever
 }
 
 // Close closes the connection and channel.
@@ -142,6 +159,21 @@ func (r *rabbitMQ) Close() {
 		_ = r.conn.Close()
 	}
 	log.Println("RabbitMQ connection closed")
+}
+
+func (r *rabbitMQ) QueueBind(queuesBind ...*queueBinding) error {
+	for _, queue := range queuesBind {
+		if err := r.channel.QueueBind(
+			queue.QueueName,
+			queue.RoutingKey,
+			queue.Exchange,
+			false,
+			nil,
+		); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (r *rabbitMQ) queueDeclare(queueName string) {
