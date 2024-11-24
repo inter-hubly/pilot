@@ -15,6 +15,7 @@ import (
 type ElasticConn interface {
 	Create(ctx context.Context, elasticIndex string, v any) (*Response, error)
 	FindById(ctx context.Context, elasticIndex string, id string) (*Response, error)
+	Update(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error)
 }
 
 func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (*Response, error) {
@@ -34,7 +35,6 @@ func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (
 		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
 		return nil, err
 	}
-	defer res.Body.Close()
 
 	if res.IsError() {
 		all, err := io.ReadAll(res.Body)
@@ -44,12 +44,7 @@ func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (
 		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", string(all)))
 		return nil, errors.New("error when create document")
 	}
-	var resBody Response
-	if err = json.NewDecoder(res.Body).Decode(&resBody); err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("Erro when decodify body: %v", err))
-	}
-
-	return &resBody, nil
+	return c.decodeElasticResponse(ctx, res.Body)
 }
 
 func (c *connection) FindById(ctx context.Context, elasticIndex, id string) (*Response, error) {
@@ -60,10 +55,39 @@ func (c *connection) FindById(ctx context.Context, elasticIndex, id string) (*Re
 		return nil, err
 	}
 
-	defer res.Body.Close()
+	return c.decodeElasticResponse(ctx, res.Body)
+}
+
+func (c *connection) Update(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error) {
+
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when serialize query: %v", err))
+	}
+
+	res, err := c.elastic.UpdateByQuery(
+		[]string{elasticIndex},
+		c.elastic.UpdateByQuery.WithBody(&buf),
+		c.elastic.UpdateByQuery.WithContext(context.Background()),
+	)
+
+	if err != nil {
+		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when update document: %v", err))
+	}
+
+	if res.IsError() {
+		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when update document: %v", res.String()))
+		return nil, err
+	}
+
+	return c.decodeElasticResponse(ctx, res.Body)
+}
+
+func (c *connection) decodeElasticResponse(ctx context.Context, res io.ReadCloser) (*Response, error) {
+	defer res.Close()
 	returnResponse := &Response{}
-	if err = json.NewDecoder(res.Body).Decode(returnResponse); err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("ElasticIndex: %s -> Erro when decodify body: %v", elasticIndex, err))
+	if err := json.NewDecoder(res).Decode(returnResponse); err != nil {
+		hlog.Error("ElasticConn.Create", fmt.Sprintf("Erro when decodify body: %v", err))
 		return nil, err
 	}
 	return returnResponse, nil

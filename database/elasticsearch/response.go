@@ -6,6 +6,10 @@ type Response struct {
 	Index        string                 `json:"_index,omitempty"`
 	Type         string                 `json:"_type,omitempty"`
 	ID           string                 `json:"_id"`
+	Total        int                    `json:"total,omitempty"`
+	Updated      int                    `json:"updated,omitempty"`
+	Deleted      int                    `json:"deleted,omitempty"`
+	Batches      int                    `json:"batches,omitempty"`
 	Result       string                 `json:"result,omitempty"`
 	Version      int                    `json:"_version,omitempty"`
 	SecNo        int                    `json:"_seq_no,omitempty"`

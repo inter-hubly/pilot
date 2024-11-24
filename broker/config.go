@@ -121,11 +121,12 @@ func (r *rabbitMQ) Publish(routingKey string, body []byte) error {
 		return fmt.Errorf("failed to publish message: %w", err)
 	}
 
-	hlog.Info("rabbitMQ.Publish", "Message published to exchange %s with routing key %s", r.exchange, routingKey)
+	hlog.Info("rabbitMQ.Publish", fmt.Sprintf("Message published to exchange %s with routing key %s", r.exchange, routingKey))
 	return nil
 }
 
 func (r *rabbitMQ) Consume(queue string, consumeFunc func(amqp.Delivery)) {
+	hlog.Error("rabbitMQ.Consume", fmt.Sprintf("Consuming Queue %s", queue))
 	r.queueDeclare(queue)
 	msgs, err := r.channel.Consume(
 		queue,
@@ -139,15 +140,12 @@ func (r *rabbitMQ) Consume(queue string, consumeFunc func(amqp.Delivery)) {
 	if err != nil {
 		hlog.Error("rabbitMQ.Consume", "failed to consume message: ", err)
 	}
-	forever := make(chan bool)
-
 	go func() {
 		for d := range msgs {
-			hlog.Info("rabbitMQ.Consume", fmt.Sprintf("Fila %s: Recebida uma mensagem: %s", queue, d.Body))
+			hlog.Info("rabbitMQ.Consume", fmt.Sprintf("Fila %s: Received message: %s", queue, d.Body))
 			consumeFunc(d)
 		}
 	}()
-	<-forever
 }
 
 // Close closes the connection and channel.
@@ -178,6 +176,7 @@ func (r *rabbitMQ) QueueBind(queuesBind ...*queueBinding) error {
 }
 
 func (r *rabbitMQ) queueDeclare(queueName string) {
+	hlog.Info("rabbitMQ.queueDeclare", fmt.Sprintf("declare queue: %s", queueName))
 	_, err := r.channel.QueueDeclare(
 		queueName,
 		true,

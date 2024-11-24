@@ -57,6 +57,30 @@ func TestElastic(t *testing.T) {
 			assert.Nil(t, err2)
 			assert.NotNil(t, response)
 			assert.Equal(t, resp.ID, response.ID)
+
+			query := map[string]interface{}{
+				"query": map[string]interface{}{
+					"bool": map[string]interface{}{
+						"must": []map[string]interface{}{
+							{
+								"ids": map[string]interface{}{
+									"values": []string{response.ID},
+								},
+							},
+							{
+								"match": map[string]interface{}{
+									"test": "myTest",
+								},
+							},
+						},
+					},
+				},
+			}
+
+			update, err3 := repo.conn.Update(ctx, elasticIndex, query)
+			assert.Nil(t, err3)
+			assert.NotNil(t, update)
+			assert.Equal(t, 1, update.Updated)
 		})
 	}
 }
@@ -68,6 +92,7 @@ type documentTest struct {
 
 func newDocumentTest() *documentTest {
 	return &documentTest{
+		Id:   "123456789",
 		Test: "myTest",
 	}
 }

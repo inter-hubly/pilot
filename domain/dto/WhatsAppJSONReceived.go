@@ -22,7 +22,7 @@ type WhatsAppJSONReceived struct {
 	Owner       WhatsAppPhoneIdDto  `json:"owner,omitempty"`
 	SenderPhone string              `json:"senderPhone,omitempty"`
 	Status      MessageStatus       `json:"status,omitempty"`
-	Metadata    WhatsAppStatusesDto `json:"metadata,omitempty"`
+	Metadata    WhatsAppMetadataDto `json:"metadata,omitempty"`
 }
 
 type WhatsAppPhoneIdDto struct {
@@ -30,7 +30,7 @@ type WhatsAppPhoneIdDto struct {
 	DisplayPhoneNumber string `json:"displayPhoneNumber,omitempty"`
 }
 
-type WhatsAppStatusesDto struct {
+type WhatsAppMetadataDto struct {
 	Timestamp      string `json:"timestamp,omitempty"`
 	ConversationId string `json:"conversationId,omitempty"`
 	OriginType     string `json:"originType,omitempty"`
