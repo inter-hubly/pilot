@@ -1,9 +1,5 @@
 package entity
 
-import (
-	"time"
-)
-
 type whatsAppMessage struct {
 	Body string `json:"body"`
 }
@@ -25,8 +21,8 @@ func NormalizeWhatsAppMessage(message *WhatsAppJSONReceived) *Chat {
 		MessageId: message.Metadata.MessageId,
 		Message:   NewWhatsAppMessage(message.Metadata.Body),
 		Delivered: ChatMessageTime{
-			CreatedInDatabase: time.Now(),
-			ReceivedAt:        message.Metadata.Timestamp,
+			Status:     "sending",
+			ReceivedAt: message.Metadata.Timestamp,
 		},
 	}
 }
