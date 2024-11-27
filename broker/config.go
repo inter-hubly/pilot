@@ -126,7 +126,7 @@ func (r *rabbitMQ) Publish(routingKey string, body []byte) error {
 }
 
 func (r *rabbitMQ) Consume(queue string, consumeFunc func(amqp.Delivery)) {
-	hlog.Error("rabbitMQ.Consume", fmt.Sprintf("Consuming Queue %s", queue))
+	hlog.Info("rabbitMQ.Consume", fmt.Sprintf("Consuming Queue %s", queue))
 	r.queueDeclare(queue)
 	msgs, err := r.channel.Consume(
 		queue,
