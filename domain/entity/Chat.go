@@ -6,11 +6,7 @@ type Chat struct {
 	From      string                  `json:"from"`
 	To        string                  `json:"to"`
 	Audit     []ChatMessageStatusTime `json:"status,omitempty"`
-	Message   ReceivedMessage         `json:"message,omitempty"`
-}
-
-type ReceivedMessage interface {
-	GetBody() string
+	Message   string                  `json:"message,omitempty"`
 }
 
 type ChatMessageStatusTime struct {

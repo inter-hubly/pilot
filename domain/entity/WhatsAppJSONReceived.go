@@ -1,5 +1,11 @@
 package entity
 
+type OriginType string
+
+const (
+	UtilityOriginType OriginType = "utility"
+)
+
 type MessageType string
 
 const (
@@ -23,6 +29,7 @@ type WhatsAppJSONReceived struct {
 	SenderPhone string              `json:"senderPhone,omitempty"`
 	Status      MessageStatus       `json:"status,omitempty"`
 	Metadata    WhatsAppMetadataDto `json:"metadata,omitempty"`
+	Active      bool                `json:"active"`
 }
 
 type WhatsAppPhoneIdDto struct {
@@ -31,10 +38,11 @@ type WhatsAppPhoneIdDto struct {
 }
 
 type WhatsAppMetadataDto struct {
-	Timestamp      string `json:"timestamp,omitempty"`
-	ConversationId string `json:"conversationId,omitempty"`
-	OriginType     string `json:"originType,omitempty"`
-	MessageId      string `json:"messageId,omitempty"`
-	Body           string `json:"body,omitempty"`
-	BodyLength     int    `json:"bodyLength,omitempty"`
+	ExpirationTimeStamp string     `json:"expirationTimeStamp,omitempty"`
+	Timestamp           string     `json:"timestamp,omitempty"`
+	ConversationId      string     `json:"conversationId,omitempty"`
+	OriginType          OriginType `json:"originType,omitempty"`
+	MessageId           string     `json:"messageId,omitempty"`
+	Body                string     `json:"body,omitempty"`
+	BodyLength          int        `json:"bodyLength,omitempty"`
 }
