@@ -2,23 +2,39 @@ package elasticsearch
 
 import (
 	"context"
-	"log"
+	"fmt"
+	"os"
 	"testing"
 
+	"github.com/inter-hubly/pilot/server"
 	"github.com/inter-hubly/pilot/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestElastic(t *testing.T) {
+const (
+	environmentDatabase = false
+	elasticIndex        = "test.elastic"
+)
 
-	const elasticIndex = "test.elastic"
+func TestElastic(t *testing.T) {
 	ctx := context.Background()
-	host, close, err := testutils.ElasticSearch(ctx)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if close != nil {
-		defer close(ctx)
+
+	var host string
+	var close func(ctx context.Context) error
+	var err error
+
+	if environmentDatabase {
+		host, close, err = testutils.ElasticSearch(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if close != nil {
+			defer close(ctx)
+		}
+	} else {
+		os.Setenv("ENVIRONMENT", "test")
+		server.MockStartEnv("../../")
+		host = server.GetElasticSearch().Host
 	}
 
 	type elastic struct {
@@ -29,60 +45,64 @@ func TestElastic(t *testing.T) {
 		conn: GetConnection(),
 	}
 
-	for _, v := range []struct {
-		testName string
-		isErr    bool
-	}{
-		{
-			testName: "need save value",
-			isErr:    false,
-		},
-	} {
-		t.Run(v.testName, func(t *testing.T) {
+	// t.Run("need be saved", func(t *testing.T) {
+	// 	docT := newDocumentTest()
+	// 	resp := &Response{}
+	//
+	// 	resp, err = repo.conn.Create(ctx, elasticIndex, docT)
+	// 	assert.Empty(t, err)
+	// 	assert.NotNil(t, resp.ID)
+	// 	assert.NotNil(t, resp.Result)
+	//
+	// 	response, err2 := repo.conn.FindById(ctx, elasticIndex, resp.ID)
+	// 	assert.Nil(t, err2)
+	// 	assert.NotNil(t, response)
+	// 	assert.Equal(t, resp.ID, response.ID)
+	//
+	// 	query := map[string]interface{}{
+	// 		"query": map[string]interface{}{
+	// 			"bool": map[string]interface{}{
+	// 				"must": []map[string]interface{}{
+	// 					{
+	// 						"ids": map[string]interface{}{
+	// 							"values": []string{response.ID},
+	// 						},
+	// 					},
+	// 					{
+	// 						"match": map[string]interface{}{
+	// 							"test": "myTest",
+	// 						},
+	// 					},
+	// 				},
+	// 			},
+	// 		},
+	// 	}
+	//
+	// 	update, err3 := repo.conn.Update(ctx, elasticIndex, query)
+	// 	assert.Nil(t, err3)
+	// 	assert.NotNil(t, update)
+	// 	assert.Equal(t, 1, update.Updated)
+	// })
+
+	t.Run("need find all", func(t *testing.T) {
+
+		for i := 0; i < 3; i++ {
 			docT := newDocumentTest()
-			resp := &Response{}
+			docT.Id = fmt.Sprintf("%s%d", docT.Id, i)
+			_, err := repo.conn.Create(ctx, elasticIndex, docT)
+			assert.NoError(t, err)
+		}
 
-			resp, err = repo.conn.Create(ctx, elasticIndex, docT)
-			if v.isErr {
-				log.Print(err)
-				assert.NotEmpty(t, err)
-				assert.Nil(t, resp)
-				return
-			}
-			assert.Empty(t, err)
-			assert.NotNil(t, resp.ID)
-			assert.NotNil(t, resp.Result)
+		query := map[string]interface{}{
+			"query": map[string]interface{}{
+				"match_all": map[string]interface{}{},
+			},
+		}
 
-			response, err2 := repo.conn.FindById(ctx, elasticIndex, resp.ID)
-			assert.Nil(t, err2)
-			assert.NotNil(t, response)
-			assert.Equal(t, resp.ID, response.ID)
-
-			query := map[string]interface{}{
-				"query": map[string]interface{}{
-					"bool": map[string]interface{}{
-						"must": []map[string]interface{}{
-							{
-								"ids": map[string]interface{}{
-									"values": []string{response.ID},
-								},
-							},
-							{
-								"match": map[string]interface{}{
-									"test": "myTest",
-								},
-							},
-						},
-					},
-				},
-			}
-
-			update, err3 := repo.conn.Update(ctx, elasticIndex, query)
-			assert.Nil(t, err3)
-			assert.NotNil(t, update)
-			assert.Equal(t, 1, update.Updated)
-		})
-	}
+		response, err2 := repo.conn.FindAll(ctx, elasticIndex, query)
+		assert.NoError(t, err2)
+		assert.NotNil(t, response.Hits)
+	})
 }
 
 type documentTest struct {

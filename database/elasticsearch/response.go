@@ -2,6 +2,7 @@ package elasticsearch
 
 type Response struct {
 	Source       map[string]interface{} `json:"_source,omitempty"`
+	Hits         *Hits                  `json:"hits,omitempty"`
 	Shard        Shard                  `json:"_shards,omitempty"`
 	Index        string                 `json:"_index,omitempty"`
 	Type         string                 `json:"_type,omitempty"`
@@ -21,4 +22,10 @@ type Shard struct {
 	Total      int `json:"total"`
 	Successful int `json:"successful"`
 	Failed     int `json:"failed"`
+}
+
+type Hits struct {
+	Total    map[string]interface{} `json:"total"`
+	MaxScore float64                `json:"max_score"`
+	Hits     []interface{}          `json:"hits,omitempty"`
 }

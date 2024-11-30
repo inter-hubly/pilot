@@ -16,6 +16,7 @@ type ElasticConn interface {
 	Create(ctx context.Context, elasticIndex string, v any) (*Response, error)
 	FindById(ctx context.Context, elasticIndex string, id string) (*Response, error)
 	Update(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error)
+	FindAll(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error)
 }
 
 func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (*Response, error) {
@@ -77,6 +78,30 @@ func (c *connection) Update(ctx context.Context, elasticIndex string, query map[
 
 	if res.IsError() {
 		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when update document: %v", res.String()))
+		return nil, err
+	}
+
+	return c.decodeElasticResponse(ctx, res.Body)
+}
+
+func (c *connection) FindAll(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error) {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when serialize query: %v", err))
+	}
+
+	res, err := c.elastic.Search(
+		c.elastic.Search.WithContext(context.Background()),
+		c.elastic.Search.WithIndex(elasticIndex),
+		c.elastic.Search.WithBody(&buf),
+	)
+
+	if err != nil {
+		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", err))
+	}
+
+	if res.IsError() {
+		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", res.String()))
 		return nil, err
 	}
 
