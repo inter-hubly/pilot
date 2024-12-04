@@ -37,8 +37,8 @@ func NewMockEnvironment(mock MockEnvironment) {
 func MockStartEnv(baseRoot string) {
 	f, err := os.Open(fmt.Sprintf("%sconfig.test.yaml", baseRoot))
 	if err != nil {
-		hlog.Warn("MockStartEnv", "Failed to open config file", "err", err)
-		// want to stop app, because don't have any environment
+		currentDir, _ := os.Getwd()
+		hlog.Warn("MockStartEnv", fmt.Sprintf("Failed to open config file: %s with error: %s", currentDir, err))
 		panic(err)
 	}
 	defer f.Close()
