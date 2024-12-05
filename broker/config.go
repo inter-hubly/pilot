@@ -107,7 +107,11 @@ func (r *rabbitMQ) declareExchange(exchangeName, exchangeType string) error {
 
 // Publish sends a message to the exchange.
 func (r *rabbitMQ) Publish(routingKey string, body []byte) error {
-	err := r.channel.Publish(
+	err := r.connect()
+	if err != nil {
+		hlog.Error("rabbitMQ.publish", fmt.Sprintf("failed to connect to RabbitMQ: %s", err))
+	}
+	err = r.channel.Publish(
 		r.exchange,
 		routingKey,
 		false,
