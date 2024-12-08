@@ -21,10 +21,11 @@ type Server struct {
 }
 
 type config struct {
-	Env         Environment `yaml:"env"`
-	Port        int         `yaml:"port"`
-	HostName    string      `yaml:"hostname"`
-	Secrettoken string      `yaml:"secrettoken"`
+	Env                Environment `yaml:"env"`
+	Port               int         `yaml:"port"`
+	HostName           string      `yaml:"hostname"`
+	WhatsAppToken      string      `yaml:"whatsAppToken"`
+	WhatsAppSecretWord string      `yaml:"whatsAppSecretWord"`
 }
 
 type environment struct {
