@@ -18,8 +18,6 @@ type MockEnvironment struct {
 	RedisEntryPoint string
 
 	ElasticSearchHost string
-
-	WhatsAppToken string
 }
 
 func NewMockEnvironment(mock MockEnvironment) {
@@ -34,8 +32,6 @@ func NewMockEnvironment(mock MockEnvironment) {
 		Database:   mock.RedisDatabase,
 		EntryPoint: mock.RedisEntryPoint,
 	}
-
-	env.Config.WhatsAppToken = mock.WhatsAppToken
 }
 
 func MockStartEnv(baseRoot string) {

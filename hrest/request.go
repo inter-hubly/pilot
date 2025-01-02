@@ -1,49 +1,100 @@
 package hrest
 
-import "net/http"
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
 
-// Get
-func Get(next http.HandlerFunc) http.HandlerFunc {
-	return allowedMethod(next, http.MethodGet)
+	"github.com/inter-hubly/pilot/hlog"
+	"github.com/pkg/errors"
+)
+
+type Request struct {
+	Headers      map[string]string
+	Url          string
+	Body         any
+	responseBody []byte
 }
 
-// Post
-func Post(next http.HandlerFunc) http.HandlerFunc {
-	return allowedMethod(next, http.MethodPost)
-}
+type Option func(*Request)
 
-// Put
-func Put(next http.HandlerFunc) http.HandlerFunc {
-	return allowedMethod(next, http.MethodPut)
-}
-
-// Delete
-func Delete(next http.HandlerFunc) http.HandlerFunc {
-	return allowedMethod(next, http.MethodDelete)
-}
-
-func allowedMethod(next http.HandlerFunc, method string) http.HandlerFunc {
-	withCors(next)
-	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != method {
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-
-		}
-		next(w, r)
+func WithBody(body any) Option {
+	return func(r *Request) {
+		r.Body = body
 	}
 }
 
-func withCors(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "*")
+type Pair[K string, V string] struct {
+	Key   K
+	Value V
+}
 
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusOK)
-			return
+func WithHeader(pair []Pair[string, string]) Option {
+	return func(r *Request) {
+		for _, p := range pair {
+			r.Headers[p.Key] = p.Value
 		}
-
-		next(w, r)
 	}
+}
+
+func NewRequest(url string, options ...Option) *Request {
+	req := &Request{
+		Headers: make(map[string]string),
+	}
+
+	for _, opt := range options {
+		opt(req)
+	}
+
+	if req.Headers == nil {
+		req.Headers = map[string]string{
+			"Content-Type": "application/json",
+		}
+	}
+
+	req.Url = url
+
+	return req
+}
+
+func (r *Request) CreateRequest(ctx context.Context, httpMethod string) error {
+	body, err := json.Marshal(r.Body)
+	if err != nil {
+		return fmt.Errorf("failed to marshal request body: %w", err)
+	}
+	req, err := http.NewRequest(httpMethod, r.Url, bytes.NewBuffer(body))
+	if err != nil {
+		return fmt.Errorf("failed to create HTTP request: %w", err)
+	}
+
+	for k, v := range r.Headers {
+		req.Header.Add(k, v)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("HTTP request failed: %w", err)
+	}
+	r.responseBody, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to read response body: %w", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP request failed (%d): %s", resp.StatusCode, string(r.responseBody))
+	}
+
+	return nil
+}
+
+func (r *Request) GetBody(result any) error {
+	hlog.Debug("Request.GetBody", fmt.Sprintf("GetBody :%s", r.Body))
+	if err := json.Unmarshal(r.responseBody, &result); err != nil {
+		return errors.New("can't get body")
+	}
+
+	return nil
 }

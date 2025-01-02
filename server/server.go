@@ -24,7 +24,6 @@ type config struct {
 	Env                Environment `yaml:"env"`
 	Port               int         `yaml:"port"`
 	HostName           string      `yaml:"hostname"`
-	WhatsAppToken      string      `yaml:"whatsAppToken"`
 	WhatsAppSecretWord string      `yaml:"whatsAppSecretWord"`
 }
 
