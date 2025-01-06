@@ -8,4 +8,5 @@ type Client struct {
 	PhoneNumberId string `json:"phoneNumberId"`
 	BusinessId    string `json:"businessId"`
 	AccessToken   string `json:"accessToken"`
+	BaseObject
 }

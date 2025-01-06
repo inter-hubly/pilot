@@ -2,8 +2,14 @@ package hctx
 
 import "context"
 
+type Logged struct {
+	Username string `json:"username"`
+	Tenant   string `json:"tenant"`
+}
+
 var (
-	Tenant Value[string] = "tenant"
+	Tenant     Value[string] = "tenant"
+	LoggedUser Value[Logged] = "logged_user"
 )
 
 type Value[K any] string
