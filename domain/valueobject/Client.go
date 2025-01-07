@@ -7,6 +7,6 @@ type Client struct {
 	AppId         string `json:"appId"`
 	PhoneNumberId string `json:"phoneNumberId"`
 	BusinessId    string `json:"businessId"`
-	AccessToken   string `json:"accessToken"`
+	AccessToken   string `json:"-"`
 	BaseObject
 }
