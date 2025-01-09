@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/inter-hubly/pilot/hlog"
-	"gopkg.in/yaml.v3"
 )
 
 // Environment is a env value
@@ -22,7 +21,7 @@ type Server struct {
 
 type config struct {
 	Env                Environment `yaml:"env"`
-	Port               int         `yaml:"port"`
+	Port               string      `yaml:"port"`
 	HostName           string      `yaml:"hostname"`
 	WhatsAppSecretWord string      `yaml:"whatsAppSecretWord"`
 	HashEncrypt        string      `yaml:"hashEncrypt"`
@@ -41,25 +40,48 @@ var env environment
 
 func FillConfigEnvironment() {
 	if myEnv := os.Getenv("ENVIRONMENT"); myEnv != "" {
-		startEnv(Environment(myEnv))
+		startEnv()
 	}
 }
 
-func startEnv(envName Environment) {
-	f, err := os.Open(fmt.Sprintf("config.%s.yaml", envName))
-	if err != nil {
-		hlog.Warn("StartEnv", "Failed to open config file", "err", err)
-		// want to stop app, because don't have any environment
-		panic(err)
+func startEnv() {
+	env = environment{
+		Config: config{
+			Env:                Environment(os.Getenv("ENVIRONMENT")),
+			Port:               os.Getenv("ENVIRONMENT_PORT"),
+			HostName:           os.Getenv("ENVIRONMENT_HOSTNAME"),
+			WhatsAppSecretWord: os.Getenv("ENVIRONMENT_WHATSAPP_SECRET"),
+			HashEncrypt:        os.Getenv("ENVIRONMENT_HASH_ENCRYPT"),
+		},
+		Mongo: dbConfig{
+			Host:     os.Getenv("ENVIRONMENT_MONGO_HOST"),
+			Database: os.Getenv("ENVIRONMENT_MONGO_DATABASE"),
+			Username: os.Getenv("ENVIRONMENT_MONGO_USERNAME"),
+			Password: os.Getenv("ENVIRONMENT_MONGO_PASSWORD"),
+		},
+		Pgsql: dbConfig{
+			Host:     os.Getenv("ENVIRONMENT_PGSQL_HOST"),
+			Database: os.Getenv("ENVIRONMENT_PGSQL_DATABASE"),
+			Username: os.Getenv("ENVIRONMENT_PGSQL_USERNAME"),
+			Password: os.Getenv("ENVIRONMENT_PGSQL_PASSWORD"),
+		},
+		Redis: dbConfig{
+			Host:     os.Getenv("ENVIRONMENT_REDIS_HOST"),
+			Database: os.Getenv("ENVIRONMENT_REDIS_DATABASE"),
+			Username: os.Getenv("ENVIRONMENT_REDIS_USERNAME"),
+			Password: os.Getenv("ENVIRONMENT_REDIS_PASSWORD"),
+		},
+		ElasticSearch: dbConfig{
+			Host:     os.Getenv("ENVIRONMENT_ELASTICSEARCH_HOST"),
+			Database: os.Getenv("ENVIRONMENT_ELASTICSEARCH_DATABASE"),
+			Username: os.Getenv("ENVIRONMENT_ELASTICSEARCH_USERNAME"),
+			Password: os.Getenv("ENVIRONMENT_ELASTICSEARCH_PASSWORD"),
+		},
+		Ampq: ampqConfig{
+			Host: os.Getenv("ENVIRONMENT_AMPQ_HOST"),
+		},
 	}
-	defer f.Close()
-
-	decoder := yaml.NewDecoder(f)
-	if err = decoder.Decode(&env); err != nil {
-		hlog.Warn("StartEnv", "Failed to parse config file", "err", err)
-		panic(err)
-	}
-	hlog.Info("StartEnv", fmt.Sprintf("Loading environment variables in %s environment in port %d", env.Config.Env, env.Config.Port))
+	hlog.Info("StartEnv", fmt.Sprintf("Loading environment variables in %s", env))
 }
 
 func GetEnvironment() config {
