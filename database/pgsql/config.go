@@ -61,6 +61,7 @@ func (c *connection) conn() *sql.DB {
 		} else {
 			hlog.Error("NewConnPgsql", fmt.Sprintf("Error connecting to the database: %v", err))
 		}
+		panic(fmt.Sprintf("Database error %s", err))
 	}
 
 	return db
