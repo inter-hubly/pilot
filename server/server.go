@@ -60,10 +60,11 @@ func startEnv() {
 			Password: os.Getenv("ENVIRONMENT_MONGO_PASSWORD"),
 		},
 		Pgsql: dbConfig{
-			Host:     os.Getenv("ENVIRONMENT_PGSQL_HOST"),
-			Database: os.Getenv("ENVIRONMENT_PGSQL_DATABASE"),
-			Username: os.Getenv("ENVIRONMENT_PGSQL_USERNAME"),
-			Password: os.Getenv("ENVIRONMENT_PGSQL_PASSWORD"),
+			Host:       os.Getenv("ENVIRONMENT_PGSQL_HOST"),
+			Database:   os.Getenv("ENVIRONMENT_PGSQL_DATABASE"),
+			Username:   os.Getenv("ENVIRONMENT_PGSQL_USERNAME"),
+			Password:   os.Getenv("ENVIRONMENT_PGSQL_PASSWORD"),
+			EntryPoint: os.Getenv("ENVIRONMENT_PGSQL_ENTRY_POINT"),
 		},
 		Redis: dbConfig{
 			Host:     os.Getenv("ENVIRONMENT_REDIS_HOST"),
