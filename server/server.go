@@ -27,13 +27,21 @@ type config struct {
 	HashEncrypt        string      `yaml:"hashEncrypt"`
 }
 
+type gatewayHosts struct {
+	LinkerHost  string `yaml:"linkerHost"`
+	KeeperHost  string `yaml:"keeperHost"`
+	WebhookHost string `yaml:"webhookHost"`
+	PulseHost   string `yaml:"pulseHost"`
+}
+
 type environment struct {
-	Config        config     `yaml:"config"`
-	Mongo         dbConfig   `yaml:"mongo"`
-	Pgsql         dbConfig   `yaml:"pgsql"`
-	Redis         dbConfig   `yaml:"redis"`
-	ElasticSearch dbConfig   `yaml:"elasticSearch"`
-	Ampq          ampqConfig `yaml:"ampq"`
+	GatewayHost   gatewayHosts `yaml:"gatewayHost"`
+	Config        config       `yaml:"config"`
+	Mongo         dbConfig     `yaml:"mongo"`
+	Pgsql         dbConfig     `yaml:"pgsql"`
+	Redis         dbConfig     `yaml:"redis"`
+	ElasticSearch dbConfig     `yaml:"elasticSearch"`
+	Ampq          ampqConfig   `yaml:"ampq"`
 }
 
 var env environment
@@ -81,6 +89,12 @@ func startEnv() {
 		Ampq: ampqConfig{
 			Host: os.Getenv("ENVIRONMENT_AMPQ_HOST"),
 		},
+		GatewayHost: gatewayHosts{
+			LinkerHost:  os.Getenv("ENVIRONMENT_LINKER_HOST"),
+			KeeperHost:  os.Getenv("ENVIRONMENT_KEEPER_HOST"),
+			WebhookHost: os.Getenv("ENVIRONMENT_WEBHOOK_HOST"),
+			PulseHost:   os.Getenv("ENVIRONMENT_PULSE_HOST"),
+		},
 	}
 	hlog.Info("StartEnv", fmt.Sprintf("Loading environment variables in %s", env))
 }
@@ -102,4 +116,7 @@ func GetElasticSearch() dbConfig {
 }
 func GetAmpqConfig() ampqConfig {
 	return env.Ampq
+}
+func GetGatewayHost() gatewayHosts {
+	return env.GatewayHost
 }
