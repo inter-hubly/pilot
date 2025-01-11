@@ -1,9 +1,12 @@
 package hlog
 
 import (
+	"context"
 	"fmt"
 	"log/slog"
 	"os"
+
+	"github.com/inter-hubly/pilot/hctx"
 )
 
 var logger *slog.Logger
@@ -27,22 +30,22 @@ func NewLogStruct(svc, sms string) *LogStruct {
 	}
 }
 
-func (l *LogStruct) toString() string {
-	return fmt.Sprintf("{Service: %s, Message: %s}", l.Callfunc, l.Message)
+func (l *LogStruct) toString(ctx context.Context) string {
+	return fmt.Sprintf("{Service: %s.%s, Message: %s}", hctx.Tenant.Get(ctx), l.Callfunc, l.Message)
 }
 
-func Debug(svc, msg string, keyvals ...interface{}) {
-	logger.Debug(NewLogStruct(svc, msg).toString(), keyvals...)
+func Debug(ctx context.Context, svc, msg string) {
+	logger.Debug(NewLogStruct(svc, msg).toString(ctx))
 }
 
-func Info(svc, msg string, keyvals ...interface{}) {
-	logger.Info(NewLogStruct(svc, msg).toString(), keyvals...)
+func Info(ctx context.Context, svc, msg string) {
+	logger.Info(NewLogStruct(svc, msg).toString(ctx))
 }
 
-func Warn(svc, msg string, keyvals ...interface{}) {
-	logger.Warn(NewLogStruct(svc, msg).toString(), keyvals...)
+func Warn(ctx context.Context, svc, msg string) {
+	logger.Warn(NewLogStruct(svc, msg).toString(ctx))
 }
 
-func Error(svc, msg string, keyvals ...interface{}) {
-	logger.Error(NewLogStruct(svc, msg).toString(), keyvals...)
+func Error(ctx context.Context, svc, msg string) {
+	logger.Error(NewLogStruct(svc, msg).toString(ctx))
 }
