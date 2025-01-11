@@ -22,6 +22,7 @@ func (e *environment) AddHealthEndpoint(ctx context.Context) {
 		response := map[string]string{
 			"status":      "healthy",
 			"environment": string(e.Config.Env),
+			"service":     e.Config.HostName,
 		}
 
 		if err := json.NewEncoder(w).Encode(response); err != nil {
