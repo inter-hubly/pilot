@@ -29,5 +29,5 @@ func (e *environment) AddHealthEndpoint(ctx context.Context) {
 		}
 	})
 
-	go http.ListenAndServe(fmt.Sprintf(":%s", e.Config.Port), nil)
+	go http.ListenAndServe(fmt.Sprintf(":809%s", e.Config.Port[len(e.Config.Port)-1:]), nil)
 }
