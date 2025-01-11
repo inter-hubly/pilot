@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -34,19 +35,19 @@ func NewMockEnvironment(mock MockEnvironment) {
 	}
 }
 
-func MockStartEnv(baseRoot string) {
+func MockStartEnv(ctx context.Context, baseRoot string) {
 	f, err := os.Open(fmt.Sprintf("%sconfig.test.yaml", baseRoot))
 	if err != nil {
 		currentDir, _ := os.Getwd()
-		hlog.Warn("MockStartEnv", fmt.Sprintf("Failed to open config file: %s with error: %s", currentDir, err))
+		hlog.Warn(ctx, "MockStartEnv", fmt.Sprintf("Failed to open config file: %s with error: %s", currentDir, err))
 		panic(err)
 	}
 	defer f.Close()
 
 	decoder := yaml.NewDecoder(f)
 	if err = decoder.Decode(&env); err != nil {
-		hlog.Warn("MockStartEnv", "Failed to parse config file", "err", err)
+		hlog.Warn(ctx, "MockStartEnv", fmt.Sprintf("Failed to parse config file %s", err))
 		panic(err)
 	}
-	hlog.Info("MockStartEnv", fmt.Sprintf("Loading environment variables in %s environment in port %d", env.Config.Env, env.Config.Port))
+	hlog.Info(ctx, "MockStartEnv", fmt.Sprintf("Loading environment variables in %s environment in port %d", env.Config.Env, env.Config.Port))
 }

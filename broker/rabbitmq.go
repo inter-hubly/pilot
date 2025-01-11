@@ -1,6 +1,7 @@
 package broker
 
 import (
+	"context"
 	"sync"
 
 	"github.com/streadway/amqp"
@@ -13,10 +14,10 @@ var (
 )
 
 type Connection interface {
-	Publish(routingKey string, body []byte) error
-	Consume(queue string, consumeFunc func(value amqp.Delivery))
-	QueueBind(queuesBind ...*queueBinding) error
-	Close()
+	Publish(ctx context.Context, routingKey string, body []byte) error
+	Consume(ctx context.Context, queue string, consumeFunc func(value amqp.Delivery))
+	QueueBind(ctx context.Context, queuesBind ...*queueBinding) error
+	Close(ctx context.Context)
 }
 
 func GetConnection() *rabbitMQ {

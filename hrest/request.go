@@ -90,8 +90,8 @@ func (r *Request) CreateRequest(ctx context.Context, httpMethod string) error {
 	return nil
 }
 
-func (r *Request) GetBody(result any) error {
-	hlog.Debug("Request.GetBody", fmt.Sprintf("GetBody :%s", r.Body))
+func (r *Request) GetBody(ctx context.Context, result any) error {
+	hlog.Debug(ctx, "Request.GetBody", fmt.Sprintf("GetBody :%s", r.Body))
 	if err := json.Unmarshal(r.responseBody, &result); err != nil {
 		return errors.New("can't get body")
 	}

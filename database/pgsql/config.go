@@ -44,22 +44,22 @@ func NewConnection(opts ...Option) {
 
 func (c *connection) conn() *sql.DB {
 	ctx := context.TODO()
-	host, port, dbname, user, password, err := extractDBDetails(c.url)
+	host, port, dbname, user, password, err := extractDBDetails(ctx, c.url)
 	if err != nil {
-		hlog.Error("NewConnPgsql", fmt.Sprintf("Error opening database: %q", err))
+		hlog.Error(ctx, "NewConnPgsql", fmt.Sprintf("Error opening database: %q", err))
 	}
 	sprintf := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)
 	db, err := sql.Open("postgres", sprintf)
 	if err != nil {
-		hlog.Error("NewConnPgsql", "Error opening database: %q", err)
+		hlog.Error(ctx, "NewConnPgsql", fmt.Sprint("Error opening database: ", err))
 	}
 	err = db.PingContext(ctx)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
-			hlog.Error("NewConnPgsql", "Connection attempt timed out")
+			hlog.Error(ctx, "NewConnPgsql", "Connection attempt timed out")
 		} else {
-			hlog.Error("NewConnPgsql", fmt.Sprintf("Error connecting to the database: %v", err))
+			hlog.Error(ctx, "NewConnPgsql", fmt.Sprintf("Error connecting to the database: %v", err))
 		}
 		panic(fmt.Sprintf("Database error %s", err))
 	}
@@ -67,13 +67,13 @@ func (c *connection) conn() *sql.DB {
 	return db
 }
 
-func extractDBDetails(jdbcURL string) (string, string, string, string, string, error) {
+func extractDBDetails(ctx context.Context, jdbcURL string) (string, string, string, string, string, error) {
 	re := regexp.MustCompile(`^postgres://(.+):(.+)@([^:/?#]+):(\d+)/([^/?#]+)`)
 
 	match := re.FindStringSubmatch(jdbcURL)
 
 	if len(match) != 6 {
-		hlog.Error("extractDBDetails", "Error parsing connection string")
+		hlog.Error(ctx, "extractDBDetails", "Error parsing connection string")
 		return "", "", "", "", "", errors.New("error parsing connection string")
 	}
 

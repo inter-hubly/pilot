@@ -1,6 +1,7 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -46,13 +47,13 @@ type environment struct {
 
 var env environment
 
-func FillConfigEnvironment() {
+func FillConfigEnvironment(ctx context.Context) {
 	if myEnv := os.Getenv("ENVIRONMENT"); myEnv != "" {
-		startEnv()
+		startEnv(ctx)
 	}
 }
 
-func startEnv() {
+func startEnv(ctx context.Context) {
 	env = environment{
 		Config: config{
 			Env:                Environment(os.Getenv("ENVIRONMENT")),
@@ -96,7 +97,8 @@ func startEnv() {
 			PulseHost:   os.Getenv("ENVIRONMENT_PULSE_HOST"),
 		},
 	}
-	hlog.Info("StartEnv", fmt.Sprintf("Loading environment variables in %s", env))
+	env.AddHealthEndpoint(ctx)
+	hlog.Info(context.Background(), "StartEnv", fmt.Sprintf("Loading environment variables in %s", env))
 }
 
 func GetEnvironment() config {

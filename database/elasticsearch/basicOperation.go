@@ -22,7 +22,7 @@ type ElasticConn interface {
 func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (*Response, error) {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(doc); err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("error when serialize doc: %v", err))
+		hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("error when serialize doc: %v", err))
 	}
 
 	req := esapi.IndexRequest{
@@ -33,16 +33,16 @@ func (c *connection) Create(ctx context.Context, elasticIndex string, doc any) (
 
 	res, err := req.Do(ctx, c.elastic)
 	if err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
+		hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
 		return nil, err
 	}
 
 	if res.IsError() {
 		all, err := io.ReadAll(res.Body)
 		if err != nil {
-			hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
+			hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("Error when create document: %v", err))
 		}
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("Error when create document: %v", string(all)))
+		hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("Error when create document: %v", string(all)))
 		return nil, errors.New("error when create document")
 	}
 	return c.decodeElasticResponse(ctx, res.Body)
@@ -52,7 +52,7 @@ func (c *connection) FindById(ctx context.Context, elasticIndex, id string) (*Re
 	res, err := c.elastic.Get(elasticIndex, id)
 
 	if err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("ElasticIndex: %s -> Erro when decodify body: %v", elasticIndex, err))
+		hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("ElasticIndex: %s -> Erro when decodify body: %v", elasticIndex, err))
 		return nil, err
 	}
 
@@ -63,7 +63,7 @@ func (c *connection) Update(ctx context.Context, elasticIndex string, query map[
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when serialize query: %v", err))
+		hlog.Error(ctx, "ElasticConn.Update", fmt.Sprintf("Error when serialize query: %v", err))
 	}
 
 	res, err := c.elastic.UpdateByQuery(
@@ -73,11 +73,11 @@ func (c *connection) Update(ctx context.Context, elasticIndex string, query map[
 	)
 
 	if err != nil {
-		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when update document: %v", err))
+		hlog.Error(ctx, "ElasticConn.Update", fmt.Sprintf("Error when update document: %v", err))
 	}
 
 	if res.IsError() {
-		hlog.Error("ElasticConn.Update", fmt.Sprintf("Error when update document: %v", res.String()))
+		hlog.Error(ctx, "ElasticConn.Update", fmt.Sprintf("Error when update document: %v", res.String()))
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func (c *connection) Update(ctx context.Context, elasticIndex string, query map[
 func (c *connection) FindAll(ctx context.Context, elasticIndex string, query map[string]interface{}) (*Response, error) {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
-		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when serialize query: %v", err))
+		hlog.Error(ctx, "ElasticConn.FindAll", fmt.Sprintf("Error when serialize query: %v", err))
 	}
 
 	res, err := c.elastic.Search(
@@ -97,11 +97,11 @@ func (c *connection) FindAll(ctx context.Context, elasticIndex string, query map
 	)
 
 	if err != nil {
-		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", err))
+		hlog.Error(ctx, "ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", err))
 	}
 
 	if res.IsError() {
-		hlog.Error("ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", res.String()))
+		hlog.Error(ctx, "ElasticConn.FindAll", fmt.Sprintf("Error when update document: %v", res.String()))
 		return nil, err
 	}
 
@@ -112,7 +112,7 @@ func (c *connection) decodeElasticResponse(ctx context.Context, res io.ReadClose
 	defer res.Close()
 	returnResponse := &Response{}
 	if err := json.NewDecoder(res).Decode(returnResponse); err != nil {
-		hlog.Error("ElasticConn.Create", fmt.Sprintf("Erro when decodify body: %v", err))
+		hlog.Error(ctx, "ElasticConn.Create", fmt.Sprintf("Erro when decodify body: %v", err))
 		return nil, err
 	}
 	return returnResponse, nil

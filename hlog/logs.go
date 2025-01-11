@@ -31,7 +31,10 @@ func NewLogStruct(svc, sms string) *LogStruct {
 }
 
 func (l *LogStruct) toString(ctx context.Context) string {
-	return fmt.Sprintf("{Service: %s.%s, Message: %s}", hctx.Tenant.Get(ctx), l.Callfunc, l.Message)
+	if tenant := hctx.Tenant.Get(ctx); tenant != "" {
+		return fmt.Sprintf("{Worker: %s.%s, Message: %s}", tenant, l.Callfunc, l.Message)
+	}
+	return fmt.Sprintf("{Service: %s, Message: %s}", l.Callfunc, l.Message)
 }
 
 func Debug(ctx context.Context, svc, msg string) {
