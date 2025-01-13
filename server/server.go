@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"os"
 
 	"github.com/inter-hubly/pilot/hlog"
@@ -97,8 +98,15 @@ func startEnv(ctx context.Context) {
 			PulseHost:   os.Getenv("ENVIRONMENT_PULSE_HOST"),
 		},
 	}
-	env.AddHealthEndpoint(ctx)
+
+	env.addEndpoints(ctx)
 	hlog.Info(context.Background(), "StartEnv", fmt.Sprintf("Loading environment variables in %s", env))
+}
+
+func (e *environment) addEndpoints(ctx context.Context) {
+	e.AddHealthEndpoint(ctx)
+	e.configPrometheus(ctx)
+	go http.ListenAndServe(fmt.Sprintf(":809%s", env.Config.Port[len(env.Config.Port)-1:]), nil)
 }
 
 func GetEnvironment() config {

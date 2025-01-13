@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/inter-hubly/pilot/hlog"
@@ -29,6 +28,4 @@ func (e *environment) AddHealthEndpoint(ctx context.Context) {
 			return
 		}
 	})
-
-	go http.ListenAndServe(fmt.Sprintf(":809%s", e.Config.Port[len(e.Config.Port)-1:]), nil)
 }
