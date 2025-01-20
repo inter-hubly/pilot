@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/inter-hubly/pilot/hctx"
 	"github.com/inter-hubly/pilot/hlog"
 	"github.com/streadway/amqp"
 )
@@ -108,6 +109,7 @@ func (r *rabbitMQ) declareExchange(ctx context.Context, exchangeName, exchangeTy
 
 // Publish sends a message to the exchange.
 func (r *rabbitMQ) Publish(ctx context.Context, routingKey string, body []byte) error {
+
 	err := r.connect(ctx)
 	if err != nil {
 		hlog.Error(ctx, "rabbitMQ.publish", fmt.Sprintf("failed to connect to RabbitMQ: %s", err))
@@ -120,6 +122,9 @@ func (r *rabbitMQ) Publish(ctx context.Context, routingKey string, body []byte) 
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        body,
+			Headers: amqp.Table{
+				"tenantId": hctx.Tenant.Get(ctx),
+			},
 		},
 	)
 	if err != nil {
