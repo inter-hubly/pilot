@@ -1,7 +1,7 @@
 package valueobject
 
 type Client struct {
-	Id            uint64 `json:"id"`
+	Id            string `json:"id"`
 	Name          string `json:"name"`
 	Email         string `json:"email"`
 	AppId         string `json:"appId"`
