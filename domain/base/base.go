@@ -1,11 +1,26 @@
 package base
 
-import "time"
+import (
+	"context"
+	"time"
+
+	"github.com/inter-hubly/pilot/hctx"
+)
 
 type Entity struct {
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	RemovedAt time.Time `json:"removed_at"`
-	RemovedBy string    `json:"removed_by"`
+	CreatedAt time.Time `bson:"createdAt" json:"createdAt"`
+	UpdatedAt time.Time `bson:"updatedAt" json:"updatedAt,omitempty"`
+	RemovedAt time.Time `bson:"removedAt" json:"removedAt,omitempty"`
+	CreatedBy string    `bson:"createdBy" json:"createdBy"`
+	RemovedBy string    `bson:"removedBy" json:"removedBy,omitempty"`
+	TenantId  string    `bson:"tenantId" json:"tenantId,omitempty"`
 	Removed   bool      `json:"removed"`
+}
+
+func NewBaseEntity(ctx context.Context, logged *hctx.Logged) Entity {
+	return Entity{
+		CreatedAt: time.Now(),
+		TenantId:  logged.Tenant,
+		CreatedBy: logged.UserId,
+	}
 }

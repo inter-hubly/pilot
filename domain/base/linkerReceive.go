@@ -1,13 +1,12 @@
 package base
 
 import (
-	"github.com/google/uuid"
 	"github.com/inter-hubly/pilot/domain/valueobject"
 )
 
 type StartTemplateDto struct {
 	To         string                             `json:"to"`
-	CampaignId uuid.UUID                          `json:"CampaignId"`
+	CampaignId string                             `json:"CampaignId"`
 	Template   TemplateInfo                       `json:"TemplateInfo"`
 	Parameters []valueobject.Pair[string, string] `json:"parameters"`
 }

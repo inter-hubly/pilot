@@ -23,10 +23,9 @@ func WithDatabase(db string) Option {
 }
 
 type connection struct {
-	url        string
-	database   string
-	mongo      *mongo.Database
-	collection *mongo.Collection
+	url      string
+	database string
+	mongo    *mongo.Database
 }
 
 func NewConnection(ctx context.Context, opts ...Option) {

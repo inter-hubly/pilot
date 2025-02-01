@@ -3,6 +3,7 @@ package hctx
 import "context"
 
 type Logged struct {
+	UserId   string `json:"userId"`
 	Username string `json:"username"`
 	Tenant   string `json:"tenant"`
 }
