@@ -14,6 +14,7 @@ type StartTemplateDto struct {
 type SendTextDto struct {
 	To      string `json:"to"`
 	Message string `json:"message"`
+	IsOwner bool   `json:"isOwner,omitempty"`
 }
 
 type TemplateInfo struct {
