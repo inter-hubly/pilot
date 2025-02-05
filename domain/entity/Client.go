@@ -1,4 +1,8 @@
-package valueobject
+package entity
+
+import (
+	"github.com/inter-hubly/pilot/domain/base"
+)
 
 type Client struct {
 	Id            string `json:"id"`
@@ -8,5 +12,5 @@ type Client struct {
 	PhoneNumberId string `json:"phoneNumberId"`
 	BusinessId    string `json:"businessId"`
 	AccessToken   string `json:"-"`
-	BaseObject
+	base.Entity   `json:",inline"`
 }

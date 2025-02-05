@@ -1,12 +1,14 @@
-package valueobject
+package entity
+
+import (
+	"github.com/inter-hubly/pilot/domain/base"
+)
 
 type User struct {
 	Id           string `json:"id"`
 	Name         string `json:"name"`
 	Email        string `json:"email"`
 	Password     string `json:"password"`
-	ClientId     string `json:"clientId"`
 	LoginAttempt uint8  `json:"loginAttempt"`
-	TenantId     string `json:"tenantId"`
-	BaseObject
+	base.Entity  `json:",inline"`
 }
