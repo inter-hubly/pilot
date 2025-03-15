@@ -10,11 +10,11 @@ import (
 type Entity struct {
 	CreatedAt time.Time `bson:"createdAt" json:"createdAt"`
 	UpdatedAt time.Time `bson:"updatedAt" json:"updatedAt,omitempty"`
-	RemovedAt time.Time `bson:"removedAt" json:"removedAt,omitempty"`
-	CreatedBy string    `bson:"createdBy" json:"createdBy"`
-	RemovedBy string    `bson:"removedBy" json:"removedBy,omitempty"`
-	TenantId  string    `bson:"tenantId" json:"tenantId,omitempty"`
-	Removed   bool      `json:"removed"`
+	RemovedAt time.Time `bson:"removedAt" json:"-"`
+	CreatedBy string    `bson:"createdBy" json:"-"`
+	RemovedBy string    `bson:"removedBy" json:"-"`
+	TenantId  string    `bson:"tenantId" json:"-"`
+	Removed   bool      `bson:"removed" json:"-"`
 }
 
 func NewBaseEntity(ctx context.Context, logged *hctx.Logged) Entity {
