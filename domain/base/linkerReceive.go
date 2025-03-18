@@ -5,10 +5,11 @@ import (
 )
 
 type StartTemplateDto struct {
-	To         string                             `json:"to"`
-	CampaignId string                             `json:"CampaignId"`
-	Template   TemplateInfo                       `json:"TemplateInfo"`
-	Parameters []valueobject.Pair[string, string] `json:"parameters"`
+	To               string                             `json:"to"`
+	CampaignId       string                             `json:"campaignId"`
+	Template         TemplateInfo                       `json:"templateInfo"`
+	HasIaInteraction bool                               `json:"hasIaInteraction"`
+	Parameters       []valueobject.Pair[string, string] `json:"parameters"`
 }
 
 type SendTextDto struct {
