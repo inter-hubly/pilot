@@ -19,6 +19,8 @@ type SendTextDto struct {
 }
 
 type TemplateInfo struct {
+	Id       string `json:"id"`
 	Name     string `json:"name"`
 	Language string `json:"language"`
+	Message  string `json:"message"`
 }
