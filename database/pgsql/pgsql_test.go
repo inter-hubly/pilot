@@ -19,7 +19,7 @@ func TestPgsql(t *testing.T) {
 		defer close(ctx)
 	}
 
-	NewConnection(WithUrl(host))
+	NewConnection(ctx, WithUrl(host))
 
 	conn := GetConnection()
 	t.Run("need insert test", func(t *testing.T) {

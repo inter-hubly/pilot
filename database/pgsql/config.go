@@ -27,7 +27,7 @@ type connection struct {
 	pgsql *sql.DB
 }
 
-func NewConnection(opts ...Option) {
+func NewConnection(ctx context.Context, opts ...Option) {
 	oncePgsql.Do(func() {
 		pgConn = &connection{}
 		pgConn.url = pgsqlDefaultUrl

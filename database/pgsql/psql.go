@@ -1,6 +1,7 @@
 package pgsql
 
 import (
+	"context"
 	"sync"
 
 	_ "github.com/lib/pq"
@@ -12,6 +13,6 @@ var (
 	pgsqlDefaultUrl = "jdbc:postgresql://localhost:5432/postgres"
 )
 
-func GetConnection() *connection {
+func GetConnection(ctx context.Context) *connection {
 	return pgConn
 }

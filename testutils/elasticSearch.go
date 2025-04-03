@@ -43,7 +43,3 @@ func ElasticSearch(ctx context.Context) (string, func(context.Context) error, er
 	esURL := "http://" + host + ":" + port.Port()
 	return esURL, esContainer.Terminate, nil
 }
-
-func StartElastic() {
-
-}
