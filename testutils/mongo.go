@@ -3,6 +3,7 @@ package testutils
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/pkg/errors"
 	"github.com/testcontainers/testcontainers-go"
@@ -34,5 +35,8 @@ func Mongo(ctx context.Context) (string, func(context.Context) error, error) {
 	if err != nil {
 		return "", nil, errors.New(fmt.Sprintf("Could not get container port: %s", err))
 	}
-	return fmt.Sprintf("mongodb://%s:%s", host, port.Port()), mongoC.Terminate, nil
+	return fmt.Sprintf("mongodb://%s:%s", host, port.Port()), func(context.Context) error {
+		log.Print("Execute close mongo")
+		return mongoC.Terminate(ctx)
+	}, nil
 }

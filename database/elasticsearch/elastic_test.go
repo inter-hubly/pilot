@@ -33,7 +33,7 @@ func TestElastic(t *testing.T) {
 		}
 	} else {
 		os.Setenv("ENVIRONMENT", "test")
-		server.MockStartEnv("../../")
+		server.MockStartEnv(ctx, "../../")
 		host = server.GetElasticSearch().Host
 	}
 
