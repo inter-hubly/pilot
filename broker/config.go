@@ -152,10 +152,20 @@ func (r *rabbitMQ) Consume(ctx context.Context, queue string, consumeFunc func(a
 	}
 	go func() {
 		for d := range msgs {
-			hlog.Info(ctx, "rabbitMQ.Consume", fmt.Sprintf("Fila %s: Received message: %s", queue, d.Body))
-			consumeFunc(d)
+			func(d amqp.Delivery) {
+				defer func() {
+					if r := recover(); r != nil {
+						hlog.Error(ctx, "rabbitMQ.Consume", fmt.Sprintf("panic recovered: %v", r))
+						_ = d.Nack(false, false) // Rejeita a mensagem com erro
+					}
+				}()
+
+				hlog.Info(ctx, "rabbitMQ.Consume", fmt.Sprintf("Fila %s: Received message: %s", queue, d.Body))
+				consumeFunc(d)
+			}(d) // isolando por mensagem
 		}
 	}()
+
 }
 
 // Close closes the connection and channel.
